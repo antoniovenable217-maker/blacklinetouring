@@ -1172,14 +1172,7 @@ export default function Home() {
                   onChange={(e) => updateNewCoach("model", e.target.value)}
                 />
 
-                <input
-                  className="border p-3 rounded"
-                  placeholder="Asset Owner"
-                  value={newCoach.assetOwner}
-                  onChange={(e) =>
-                    updateNewCoach("assetOwner", e.target.value)
-                  }
-                />
+    
 
                 <select
                   className="border p-3 rounded"
@@ -1233,12 +1226,6 @@ export default function Home() {
                       className="border p-2 text-left cursor-pointer"
                     >
                       Model ↕
-                    </th>
-                    <th
-                      onClick={() => sortCoaches("assetOwner")}
-                      className="border p-2 text-left cursor-pointer"
-                    >
-                      Asset Owner ↕
                     </th>
                     <th
                       onClick={() => sortCoaches("coachType")}
@@ -1550,8 +1537,123 @@ export default function Home() {
             </div>
           </>
         )}
+        {activePage === "Calendar" && (
+  <>
+    <h2 className="text-4xl font-bold mb-6">Tour Calendar</h2>
 
-        {activePage !== "Dashboard" &&
+    <div className="bg-white p-6 rounded-lg shadow mb-8">
+      <h3 className="text-2xl font-bold mb-4">Scheduled Tours</h3>
+
+      <table className="w-full border-collapse border">
+        <thead>
+          <tr className="bg-slate-100">
+            <th className="border p-2 text-left">Tour Name</th>
+            <th className="border p-2 text-left">Bus / Coach</th>
+            <th className="border p-2 text-left">Driver</th>
+            <th className="border p-2 text-left">Start Date</th>
+            <th className="border p-2 text-left">End Date</th>
+            <th className="border p-2 text-left">Days Out</th>
+            <th className="border p-2 text-left">Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {trips.map((trip) => {
+            const start = new Date(trip.startDate);
+            const end = new Date(trip.endDate);
+            const daysOut =
+              Math.max(
+                Math.ceil(
+                  (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)
+                ) + 1,
+                0
+              );
+
+            return (
+              <tr key={trip.id}>
+                <td className="border p-2">{trip.tripName}</td>
+                <td className="border p-2">{trip.coachName}</td>
+                <td className="border p-2">{trip.driverName}</td>
+                <td className="border p-2">{trip.startDate}</td>
+                <td className="border p-2">{trip.endDate}</td>
+                <td className="border p-2">{daysOut}</td>
+                <td className="border p-2">
+                  {isTodayBetween(trip.startDate, trip.endDate)
+                    ? "On Tour"
+                    : "Scheduled / Completed"}
+                </td>
+              </tr>
+            );
+          })}
+
+          {trips.length === 0 && (
+            <tr>
+              <td className="border p-4 text-center" colSpan={7}>
+                No tours scheduled.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+
+    <div className="bg-white p-6 rounded-lg shadow">
+      <h3 className="text-2xl font-bold mb-4">Available Coaches</h3>
+
+      <table className="w-full border-collapse border">
+        <thead>
+          <tr className="bg-slate-100">
+            <th className="border p-2 text-left">Coach Name</th>
+            <th className="border p-2 text-left">VIN</th>
+            <th className="border p-2 text-left">Year</th>
+            <th className="border p-2 text-left">Model</th>
+            <th className="border p-2 text-left">Type</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          {coaches
+            .filter((coach) => {
+              const coachIsOnTour = trips.some(
+                (trip) =>
+                  trip.coachName === coach.coachName &&
+                  isTodayBetween(trip.startDate, trip.endDate)
+              );
+
+              return !coachIsOnTour;
+            })
+            .map((coach) => (
+              <tr key={coach.id}>
+                <td className="border p-2">{coach.coachName}</td>
+                <td className="border p-2">{coach.vin}</td>
+                <td className="border p-2">{coach.year}</td>
+                <td className="border p-2">{coach.model}</td>
+                <td className="border p-2">{coach.coachType}</td>
+              </tr>
+            ))}
+
+          {coaches.filter((coach) => {
+            const coachIsOnTour = trips.some(
+              (trip) =>
+                trip.coachName === coach.coachName &&
+                isTodayBetween(trip.startDate, trip.endDate)
+            );
+
+            return !coachIsOnTour;
+          }).length === 0 && (
+            <tr>
+              <td className="border p-4 text-center" colSpan={6}>
+                No available coaches.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
+  </>
+)}
+        {activePage !== "Calendar" &&
+          activePage !== "Dashboard" &&
           activePage !== "Quotes" &&
           activePage !== "Coaches" &&
           activePage !== "Drivers" &&
