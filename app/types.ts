@@ -122,5 +122,3 @@ export type SavedQuote = QuoteInput & {
 };
 
 export type SortDirection = "asc" | "desc";
-
-export type SortDirection = "asc" | "desc";
